@@ -2,9 +2,9 @@ package it.myBooks.domain;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Objects;
 
-public class Author implements Comparable{
+public class Author {
 
     private String name;
     private String lastName;
@@ -43,17 +43,16 @@ public class Author implements Comparable{
         this.books.add(b);
     }
 
-    // in order to verify if the author repeats,
-        // we have to compare the name, last name and date of birth of the authors
-//    @Override
-    public int compareTo(Object o) {
-        if(this.name.equals(((Author) o).getName())) {
-            if (this.lastName.equals(((Author) o).getLastName())) {
-                if (this.dateOfBirth.isEqual((((Author) o).getDateOfBirth()))){
-                    return 1;
-                }
-            }
-        }
-        return 0;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return Objects.equals(name, author.name) && Objects.equals(lastName, author.lastName) && Objects.equals(dateOfBirth, author.dateOfBirth);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, lastName, dateOfBirth);
     }
 }

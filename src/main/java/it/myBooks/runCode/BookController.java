@@ -2,15 +2,15 @@ package it.myBooks.runCode;
 
 import it.myBooks.domain.Author;
 import it.myBooks.domain.Book;
-import it.myBooks.domain.CsvParser;
+import it.myBooks.domain.DataException;
 import it.myBooks.interfacce.Parser;
 
-import java.nio.file.Path;
+import java.util.Collection;
 
 
 public class BookController {
 
-    public Parser myParser;
+    private Parser myParser;
 
 //    private CsvParser parser = new CsvParser();
 
@@ -26,16 +26,9 @@ public class BookController {
 //        }
 //    }
 
-    public BookController(Parser parser){
+    public BookController(Parser parser) throws DataException {
         this.myParser = parser;
-        // Exception handling
-        try {
-            // call myParser's read method to read the file
-            this.myParser.read();
-        } catch (Exception e) {
-            System.out.println("Something went wrong with your file reading. Contact the boss.");
-            e.printStackTrace();
-        }
+        this.myParser.read();
     }
 
 
@@ -62,6 +55,14 @@ public class BookController {
         System.out.println("Author's name: " + author.getName());
         System.out.println("Author's last name: " + author.getLastName());
         System.out.println("Author's date of birth: " + author.getDateOfBirth());
+    }
+
+    public Collection<Book> getBooks(){
+        return this.myParser.getBooks();
+    }
+
+    public Collection<Author> getAuthors(){
+        return this.myParser.getAuthors();
     }
 
 }

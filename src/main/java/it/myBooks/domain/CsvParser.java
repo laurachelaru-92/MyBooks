@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CsvParser implements Parser {
 
@@ -14,10 +17,10 @@ public class CsvParser implements Parser {
     public Path filePath;
 
     // variable with a list of books
-    private ArrayList<Book> bookList = new ArrayList<>();
+    private Set<Book> books = new HashSet<>();
 
     // variable with a list of authors
-    private ArrayList<Author> authorList = new ArrayList<>();
+    private Set<Author> authors = new HashSet<>();
 
     // constructor
     public CsvParser(Path path){
@@ -26,7 +29,7 @@ public class CsvParser implements Parser {
 
     // read method reads the file with the filePath as its path
     @Override
-    public void read() throws IOException{
+    public void read() throws DataException{
 
         // Try with resources
         try (BufferedReader buf = new BufferedReader(new FileReader(filePath.toFile()))) {
@@ -40,72 +43,72 @@ public class CsvParser implements Parser {
                 // put the content of the line in an array of strings
                 String[] contentOfLine = currentLine.split(",");
 
-                // first create a new author and set his/her values
-                Author newAuthor = new Author();
-                // author's name, trimmed and capitalized
-                String trimmedName = contentOfLine[0].trim();
-                String capitalizedName = trimmedName.substring(0, 1).toUpperCase() + trimmedName.substring(1);
-                newAuthor.setName(capitalizedName);
-                // author's last name, trimmed and capitalized
-                String trimmedLastName = contentOfLine[1].trim();
-                String capitalizedLastName = trimmedLastName.substring(0, 1).toUpperCase() + trimmedLastName.substring(1);
-                newAuthor.setLastName(capitalizedLastName);
-                // author's date of birth, trimmed
-                newAuthor.setDateOfBirth(contentOfLine[2].trim());
+                Author newAuthor = createAuthorFromCsvString(currentLine);
 
-                // if the authorsList doesn't include this author, add him/her to it
-                if(this.authorList.size() > 0){
-                    for (Author author:this.authorList) {
-                        if(author.compareTo(newAuthor) == 0){
-                            this.authorList.add(newAuthor);
-                            break;
-                        }
-//                        if (!(author.getName().equals(newAuthor.getName()) && author.getLastName().equals(newAuthor.getLastName()) && author.getDateOfBirth().equals(newAuthor.getDateOfBirth()))) {
-//                            this.authorList.add(newAuthor);
-//                            break;
-//                        }
-                    }
-                } else {
-                    this.authorList.add(newAuthor);
-                }
-//                if(this.authorList.size() > 0) {
-//                    if(!newAuthor.getName().equals(this.authorList.get(0).getName())) {
-//                        this.authorList.add(newAuthor);
-//                    }
-//                } else {
-//                    this.authorList.add(newAuthor);
-//                }
+                this.authors.add(newAuthor);
 
-                // then create the book written by that author
-                Book newBook = new Book();
-                // title of the book, trimmed and capitalized
-                String trimmedTitle = contentOfLine[3].trim();
-                String capitalizedTitle = trimmedTitle.substring(0,1).toUpperCase() + trimmedTitle.substring(1);
-                newBook.setTitle(capitalizedTitle);
-                // author of the book
+                Book newBook = createBookFromCsvString(currentLine);
+                // set author of the book
                 newBook.setAuthor(newAuthor);
-                // year the book was published
-                newBook.setYearPublished(Integer.parseInt(contentOfLine[4].trim()));
-                // number of pages
-                newBook.setNumPages(Integer.parseInt(contentOfLine[5].trim()));
+
 
                 // add this book to this author's list of books, if it doesn't contain it yet
 
                 // save the book in the book list
-                if(!this.bookList.contains(newBook)){
-                    this.bookList.add(newBook);
-                }
+                this.books.add(newBook);
+
             }
+        } catch(IOException e) {
+            throw new DataException(e.getMessage(),e);
         }
+
+
+    }
+
+    private Author createAuthorFromCsvString(String line){
+
+        String[] contentOfLine = line.split(",");
+
+        // first create a new author and set his/her values
+        Author newAuthor = new Author();
+        // author's name, trimmed and capitalized
+        String trimmedName = contentOfLine[0].trim();
+        String capitalizedName = trimmedName.substring(0, 1).toUpperCase() + trimmedName.substring(1);
+        newAuthor.setName(capitalizedName);
+        // author's last name, trimmed and capitalized
+        String trimmedLastName = contentOfLine[1].trim();
+        String capitalizedLastName = trimmedLastName.substring(0, 1).toUpperCase() + trimmedLastName.substring(1);
+        newAuthor.setLastName(capitalizedLastName);
+        // author's date of birth, trimmed
+        newAuthor.setDateOfBirth(contentOfLine[2].trim());
+
+        return newAuthor;
+    }
+
+    private Book createBookFromCsvString(String line){
+        String[] contentOfLine = line.split(",");
+
+        // then create the book written by that author
+        Book newBook = new Book();
+        // title of the book, trimmed and capitalized
+        String trimmedTitle = contentOfLine[3].trim();
+        String capitalizedTitle = trimmedTitle.substring(0,1).toUpperCase() + trimmedTitle.substring(1);
+        newBook.setTitle(capitalizedTitle);
+        // year the book was published
+        newBook.setYearPublished(Integer.parseInt(contentOfLine[4].trim()));
+        // number of pages
+        newBook.setNumPages(Integer.parseInt(contentOfLine[5].trim()));
+
+        return newBook;
     }
 
     @Override
-    public ArrayList<Book> getBookList() {
-        return bookList;
+    public Collection<Book> getBooks() {
+        return books;
     }
 
     @Override
-    public ArrayList<Author> getAuthorList() {
-        return authorList;
+    public Collection<Author> getAuthors() {
+        return authors;
     }
 }
